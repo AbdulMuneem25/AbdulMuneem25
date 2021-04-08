@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.optimize import minimize
+import os
+import matplotlib.cm as cm
 
 
 def read_formatted_txt(filename, int_list=[]):
@@ -90,12 +92,14 @@ def sum_impact_factor_sq(line_params, points):
 
 if __name__ == "__main__":
 
-    root_dir = "range_calc_kur_ill_data1/v_fit_kur"
+    root_dir = "range_calc_kur_ill_data1/ill_not_goood_fitting"
     files = glob.glob(f'{root_dir}/*.txt')
 
     dist_rootpoint_fitpoint = []
+    theta = []
 
     for f in files:
+        basename = os.path.basename(f)
 
         points = read_formatted_txt(f)
         print('points',points)
@@ -130,7 +134,7 @@ if __name__ == "__main__":
         print('result:',result)
         line_params = result.x
         print('line_params:',line_params)
-        ax, ay, x0, y0, z0 = rename_line_params(line_params)
+        dxdzfit, dydzfit, x0, y0, z0 = rename_line_params(line_params)
         print('----')       
         # 3d plot
         fig = plt.figure()
@@ -142,12 +146,47 @@ if __name__ == "__main__":
         model_xs, model_ys = model_line(model_zs, line_params)
         #ax.plot(model_xs, model_ys, model_zs, "-", color="#00aa00")
         ax.plot(model_xs, model_ys, model_zs, "-", color="red")
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
         #print('model_xs',len(model_xs), 'model_ys', len(model_ys))
+        
+        print('basename',basename)
         plt.show()
 
         dist = np.sum(((x0-xpoi)**2+(y0-ypoi)**2+(z0-zpoi)**2), axis =0)
         dist_root_fitpoint = np.sqrt(dist)
         dist_rootpoint_fitpoint.append(dist_root_fitpoint)
-    print('dist_rootpoint_fitpoint',dist_rootpoint_fitpoint)
+        theta.append(dxdzfit)
+    dist_rootpoint_fitpoint_micron = [aa*0.055 for aa in dist_rootpoint_fitpoint]
+    #print('dist_rootpoint_fitpoint',dist_rootpoint_fitpoint_micron)
+    #print('theta',theta)
+        
+    plt.clf()
+    vals, bin_edges = np.histogram(dist_rootpoint_fitpoint_micron, 20,(0,4))
+    #print(vals)
+    this_std = np.std(dist_rootpoint_fitpoint_micron)
+    bin_middles = 0.5*(bin_edges[1:] + bin_edges[:-1])
+    plt.errorbar(bin_middles, vals, np.sqrt(vals),  4.0/20.0,fmt='o',color='g')
+    plt.text( 2.0,max(vals)/1.3, f'$\sigma$={this_std:.2f}', size=30, color="black")
+    plt.title('Distance fitting and first grain', fontsize = '22')
+    plt.xlabel('range [$\mu$m]', fontsize = '16')
+    plt.ylabel('Counts', fontsize = '16')
+    plt.savefig(f"{root_dir}/distance.png")
+    plt.clf()
+    H = plt.hist2d(theta, dist_rootpoint_fitpoint_micron,  bins=[np.linspace(0,8,10), np.linspace(0, math.pi/2.0, 10)],cmap=cm.jet)
+    plt.ylim(0, math.pi/2.0)
+    plt.colorbar(H[3])
+    plt.title("Distance-theta")
+    plt.ylabel('distance [$\mu m$]')
+    plt.xlabel('theta [rad]')
+    plt.tight_layout()
+    plt.savefig(f"{root_dir}/dist_theta_2Dhist.png")
+    plt.clf()
+    plt.scatter(theta, dist_rootpoint_fitpoint_micron)
+    plt.ylabel('distance [$\mu m$]')
+    plt.xlabel('theta [rad]')
+    plt.tight_layout()
+    plt.savefig(f"{root_dir}/dist_theta_scatter.png")
 
 
