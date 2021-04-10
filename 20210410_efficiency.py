@@ -8,12 +8,24 @@ if __name__ == '__main__':
     #list_observed_original = [770,1512,2188,2774,3413,3904,4422,4711,5804] # without_mask
     #list_expected_original = [818,1643,2457,3256,4134,4982,5813,6575,9889] # without_mask
 
-    list_expected_original = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 12000] 
-    list_expected = [x / 2.0 for x in list_expected_original]
+    #list_expected_original = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 12000] 
+    list_expected_original = []
+
+    for i in range(1000, 10001,1000):
+        list_expected_original.append(i)
+    print(list_expected_original)
+
+    n = 1000
+    list_observed_original = []
+    for i in range(1,11,1):
+        cout = n*i
+        list_observed_original.append(cout)
+    print(list_observed_original)
+    list_expected = [x  for x in list_expected_original]
 
 
-    list_observed_original = [905, 1810, 2605, 3341, 3998, 4579, 5140,5599,6713]
-    list_observed = [x / 2.0 for x in list_observed_original]
+    #list_observed_original = [905, 1810, 2605, 3341, 3998, 4579, 5140,5599,6713]
+    list_observed = [x  for x in list_observed_original]
     list_observed_minus = [x - math.sqrt(x) for x in list_observed]
     list_observed_plus = [x + math.sqrt(x) for x in list_observed]
 
@@ -34,14 +46,14 @@ if __name__ == '__main__':
     #ax.scatter(list_expected, list_observed_plus)
     ax.scatter(list_expected, list_observed, s=40, c='black', marker="*", label ="N")
     #ax.scatter(list_expected, list_observed_minus)
-    xs = np.linspace(500, 6000, 100)
+    xs = np.linspace(500, 10000, 100)
     ys_plus = np.polyval(coefficients_plus,xs)
     ax.plot(xs, ys_plus, 'b-', lw=1, label="N + $sqrt(N)$")
     ys = np.polyval(coefficients, xs)
     ax.plot(xs, ys, 'r-', lw=1)
     ys_minus = np.polyval(coefficients_minus,xs)
     ax.plot(xs, ys_minus, 'g-', lw=1,label="N - $sqrt(N)$")
-    ax.set_title('Detected track number vs track density')
+    ax.set_title('Detected track number vs track density(Ideal situation)')
     ax.set_xlabel(r'Track density [/$(100\mu m)^2$]')
     ax.set_ylabel('Detected track number')
     ax.legend()
@@ -53,7 +65,7 @@ if __name__ == '__main__':
     plt.tight_layout()
     #
     #plt.show()
-    plt.savefig("Detected_track_number_vs_track_density.png")
+    plt.savefig("Detected_track_number_vs_track_density_ideal.png")
     #
 
     list_upper_error = []
@@ -79,13 +91,13 @@ if __name__ == '__main__':
     plt.clf()
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1,1,1)
-    ax.scatter(xs, list_upper_error, s=6, c='black')
-    ax.scatter(xs, list_lower_error, s=6, c='black')
+    ax.scatter(xs, list_upper_error, s=20, c='blue',marker="*")
+    ax.scatter(xs, list_lower_error, s=20, c='green',marker="*")
     plt.ylim(-10,8)
-    ax.set_title('Statistical error vs track density')
+    ax.set_title('Statistical error vs track density(Ideal situation)')
     ax.set_xlabel(r'Track density [/$(100\mu m)^2$]')
     ax.set_ylabel('Statistical error [%]')
     ax.grid(True)
     plt.tight_layout()
     #
-    plt.savefig("Statistical_error_vs_track_density.png")
+    plt.savefig("Statistical_error_vs_track_density_ideal.png")
